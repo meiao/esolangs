@@ -16,8 +16,7 @@ use crate::brainfuck::BrainfuckError::{MismatchedClose, MismatchedOpen};
 use crate::brainfuck::{BrainfuckError, Commands};
 
 pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
-    // TODO record line/char so a better error message can be provided for mismatched brackets
-    let mut blocks: Vec<StartBlockData> = vec![];
+    let mut starts: Vec<StartBlockData> = vec![];
     let mut commands: Vec<Commands> = vec![];
     let mut line = 1;
     let mut col = 1;
@@ -30,22 +29,22 @@ pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
             '.' => commands.push(Commands::Output),
             ',' => commands.push(Commands::Input),
             '[' => {
-                blocks.push(StartBlockData {
+                starts.push(StartBlockData {
                     start_block_instr: commands.len(),
                     line,
                     col,
                 });
                 // this is a temporary entry. The correct next_instr will be set when the block ends
-                commands.push(Commands::StartBlock { next_instr: 0 })
+                commands.push(Commands::StartBlock { end_block_instr: 0 })
             }
-            ']' => match blocks.pop() {
+            ']' => match starts.pop() {
                 None => return Err(MismatchedClose { line, col }),
                 Some(block_data) => {
                     commands[block_data.start_block_instr] = Commands::StartBlock {
-                        next_instr: commands.len(),
+                        end_block_instr: commands.len(),
                     };
                     commands.push(Commands::EndBlock {
-                        next_instr: block_data.start_block_instr + 1,
+                        start_block_instr: block_data.start_block_instr,
                     });
                 }
             },
@@ -58,8 +57,8 @@ pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
         col = col + 1;
     }
 
-    if !blocks.is_empty() {
-        let last_open = blocks.last().unwrap();
+    if !starts.is_empty() {
+        let last_open = starts.last().unwrap();
         return Err(MismatchedOpen {
             line: last_open.line,
             col: last_open.col,

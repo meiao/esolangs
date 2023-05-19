@@ -27,12 +27,14 @@ fn parse_test() {
     let expected = vec![
         IncData,
         IncData,
-        StartBlock { next_instr: 7 },
+        StartBlock { end_block_instr: 7 },
         DecData,
         IncDataPointer,
         IncData,
         DecDataPointer,
-        EndBlock { next_instr: 3 },
+        EndBlock {
+            start_block_instr: 2,
+        },
     ];
     assert_eq!(expected.len(), byte_code.len());
     for i in 0..(expected.len() - 1) {
