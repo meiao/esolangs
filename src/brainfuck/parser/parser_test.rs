@@ -32,7 +32,7 @@ fn parse_test() {
         IncDataPointer,
         IncData,
         DecDataPointer,
-        EndBlock { next_instr: 2 },
+        EndBlock { next_instr: 3 },
     ];
     assert_eq!(expected.len(), byte_code.len());
     for i in 0..(expected.len() - 1) {
@@ -43,7 +43,7 @@ fn parse_test() {
 #[test]
 fn mismatched_open() {
     let result = parse(String::from("[[]"));
-    assert_eq!(result, Err(MismatchedOpen))
+    assert_eq!(result, Err(MismatchedOpen { line: 1, col: 1 }))
 }
 
 #[test]

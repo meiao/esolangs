@@ -37,7 +37,7 @@ pub enum Commands {
 
 #[derive(Debug, PartialEq)]
 pub enum BrainfuckError {
-    MismatchedOpen,
+    MismatchedOpen { line: u8, col: u8 },
     MismatchedClose { line: u8, col: u8 },
     DataPointerNegative,
     DataPointerOverflow,
@@ -48,8 +48,8 @@ pub enum BrainfuckError {
 impl BrainfuckError {
     fn to_error(&self) -> Error {
         match self {
-            MismatchedOpen => Error {
-                msg: String::from("Mismatched '['."),
+            MismatchedOpen { line, col } => Error {
+                msg: format!("Mismatched '[' at {}:{}.", line, col),
                 exit_code: 1,
             },
             MismatchedClose { line, col } => Error {

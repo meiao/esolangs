@@ -30,10 +30,11 @@ fn main() {
         }
         Ok(_) => {}
     }
+    println!();
 }
 
 fn exit(error: Error) {
-    print!("{}", error.msg);
+    println!("{}", error.msg);
     std::process::exit(error.exit_code);
 }
 
