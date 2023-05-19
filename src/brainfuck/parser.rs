@@ -19,6 +19,8 @@ pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
     // TODO record line/char so a better error message can be provided for mismatched brackets
     let mut opens: Vec<usize> = vec![];
     let mut commands: Vec<Commands> = vec![];
+    let mut line = 1;
+    let mut col = 1;
     for char in source.chars() {
         match char {
             '>' => commands.push(Commands::IncDataPointer),
@@ -29,23 +31,27 @@ pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
             ',' => commands.push(Commands::Input),
             '[' => {
                 opens.push(commands.len());
-                commands.push(Commands::StartBlock { next_instr: None })
+                // this is a temporary entry. The correct next_instr will be set when the block ends
+                commands.push(Commands::StartBlock { next_instr: 0 })
             }
-            ']' => {
-                match opens.pop() {
-                    None => return Err(MismatchedClose),
-                    Some(open_index) => {
-                        commands.push(Commands::EndBlock {
-                            next_instr: Some(open_index),
-                        });
-                        commands[open_index] = Commands::StartBlock {
-                            next_instr: Some(commands.len() - 1),
-                        }
+            ']' => match opens.pop() {
+                None => return Err(MismatchedClose { line, col }),
+                Some(open_index) => {
+                    commands.push(Commands::EndBlock {
+                        next_instr: open_index,
+                    });
+                    commands[open_index] = Commands::StartBlock {
+                        next_instr: commands.len() - 1,
                     }
                 }
+            },
+            '\n' => {
+                line = line + 1;
+                col = 0;
             }
             _ => {}
         }
+        col = col + 1;
     }
 
     if !opens.is_empty() {
