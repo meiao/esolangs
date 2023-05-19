@@ -35,7 +35,7 @@ impl Machine {
     }
 
     pub(crate) fn execute(&mut self) -> Result<(), BrainfuckError> {
-        while (self.instr_pointer as usize) < self.commands.len() {
+        while (self.instr_pointer) < self.commands.len() {
             let last_command_result = match self.commands[self.instr_pointer] {
                 Commands::IncDataPointer => self.inc_data_pointer(),
                 Commands::DecDataPointer => self.dec_data_pointer(),
@@ -43,8 +43,8 @@ impl Machine {
                 Commands::DecData => self.dec_data(),
                 Commands::Output => self.output(),
                 Commands::Input => self.input(),
-                Commands::StartBlock { next_instr } => self.jmp_z(next_instr.unwrap()),
-                Commands::EndBlock { next_instr } => self.jmp_nz(next_instr.unwrap()),
+                Commands::StartBlock { next_instr } => self.jmp_z(next_instr),
+                Commands::EndBlock { next_instr } => self.jmp_nz(next_instr),
             };
 
             if last_command_result.is_err() {

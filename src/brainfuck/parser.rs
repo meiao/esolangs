@@ -17,8 +17,10 @@ use crate::brainfuck::{BrainfuckError, Commands};
 
 pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
     // TODO record line/char so a better error message can be provided for mismatched brackets
-    let mut opens: Vec<usize> = vec![];
+    let mut blocks: Vec<StartBlockData> = vec![];
     let mut commands: Vec<Commands> = vec![];
+    let mut line = 1;
+    let mut col = 1;
     for char in source.chars() {
         match char {
             '>' => commands.push(Commands::IncDataPointer),
@@ -28,30 +30,48 @@ pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
             '.' => commands.push(Commands::Output),
             ',' => commands.push(Commands::Input),
             '[' => {
-                opens.push(commands.len());
-                commands.push(Commands::StartBlock { next_instr: None })
+                blocks.push(StartBlockData {
+                    start_block_instr: commands.len(),
+                    line,
+                    col,
+                });
+                // this is a temporary entry. The correct next_instr will be set when the block ends
+                commands.push(Commands::StartBlock { next_instr: 0 })
             }
-            ']' => {
-                match opens.pop() {
-                    None => return Err(MismatchedClose),
-                    Some(open_index) => {
-                        commands.push(Commands::EndBlock {
-                            next_instr: Some(open_index),
-                        });
-                        commands[open_index] = Commands::StartBlock {
-                            next_instr: Some(commands.len() - 1),
-                        }
-                    }
+            ']' => match blocks.pop() {
+                None => return Err(MismatchedClose { line, col }),
+                Some(block_data) => {
+                    commands[block_data.start_block_instr] = Commands::StartBlock {
+                        next_instr: commands.len(),
+                    };
+                    commands.push(Commands::EndBlock {
+                        next_instr: block_data.start_block_instr + 1,
+                    });
                 }
+            },
+            '\n' => {
+                line = line + 1;
+                col = 0;
             }
             _ => {}
         }
+        col = col + 1;
     }
 
-    if !opens.is_empty() {
-        return Err(MismatchedOpen);
+    if !blocks.is_empty() {
+        let last_open = blocks.last().unwrap();
+        return Err(MismatchedOpen {
+            line: last_open.line,
+            col: last_open.col,
+        });
     }
     Ok(commands)
+}
+
+struct StartBlockData {
+    start_block_instr: usize,
+    line: u8,
+    col: u8,
 }
 
 #[cfg(test)]

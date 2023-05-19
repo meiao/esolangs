@@ -31,14 +31,14 @@ pub enum Commands {
     DecData,
     Output,
     Input,
-    StartBlock { next_instr: Option<usize> },
-    EndBlock { next_instr: Option<usize> },
+    StartBlock { next_instr: usize },
+    EndBlock { next_instr: usize },
 }
 
 #[derive(Debug, PartialEq)]
 pub enum BrainfuckError {
-    MismatchedOpen,
-    MismatchedClose,
+    MismatchedOpen { line: u8, col: u8 },
+    MismatchedClose { line: u8, col: u8 },
     DataPointerNegative,
     DataPointerOverflow,
     DataOverflow,
@@ -48,12 +48,12 @@ pub enum BrainfuckError {
 impl BrainfuckError {
     fn to_error(&self) -> Error {
         match self {
-            MismatchedOpen => Error {
-                msg: String::from("Mismatched '['."),
+            MismatchedOpen { line, col } => Error {
+                msg: format!("Mismatched '[' at {}:{}.", line, col),
                 exit_code: 1,
             },
-            MismatchedClose => Error {
-                msg: String::from("Mismatched ']'."),
+            MismatchedClose { line, col } => Error {
+                msg: format!("Mismatched ']' at {}:{}.", line, col),
                 exit_code: 2,
             },
             DataPointerNegative => Error {
