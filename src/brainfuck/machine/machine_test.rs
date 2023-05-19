@@ -40,12 +40,14 @@ fn block_test() {
     let commands = vec![
         IncData,
         IncData,
-        StartBlock { next_instr: 7 },
+        StartBlock { end_block_instr: 7 },
         DecData,
         IncDataPointer,
         IncData,
         DecDataPointer,
-        EndBlock { next_instr: 2 },
+        EndBlock {
+            start_block_instr: 2,
+        },
     ];
     let mut machine = Machine::create(commands);
     let result = machine.execute();
@@ -65,10 +67,12 @@ fn data_pointer_negative() {
 fn data_pointer_overflow() {
     let commands = vec![
         IncData,
-        StartBlock { next_instr: 3 },
+        StartBlock { end_block_instr: 3 },
         IncDataPointer,
         IncData,
-        EndBlock { next_instr: 1 },
+        EndBlock {
+            start_block_instr: 1,
+        },
     ];
     let result = Machine::create(commands).execute();
     assert_eq!(result, Err(DataPointerOverflow))
@@ -78,9 +82,11 @@ fn data_pointer_overflow() {
 fn positive_data_overflow() {
     let commands = vec![
         IncData,
-        StartBlock { next_instr: 3 },
+        StartBlock { end_block_instr: 3 },
         IncData,
-        EndBlock { next_instr: 1 },
+        EndBlock {
+            start_block_instr: 1,
+        },
     ];
     let result = Machine::create(commands).execute();
     assert_eq!(result, Err(DataOverflow))
@@ -90,9 +96,11 @@ fn positive_data_overflow() {
 fn negative_data_overflow() {
     let commands = vec![
         DecData,
-        StartBlock { next_instr: 3 },
+        StartBlock { end_block_instr: 3 },
         DecData,
-        EndBlock { next_instr: 1 },
+        EndBlock {
+            start_block_instr: 1,
+        },
     ];
     let result = Machine::create(commands).execute();
     assert_eq!(result, Err(DataOverflow))

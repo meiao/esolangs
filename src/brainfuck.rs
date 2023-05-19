@@ -31,8 +31,8 @@ pub enum Commands {
     DecData,
     Output,
     Input,
-    StartBlock { next_instr: usize },
-    EndBlock { next_instr: usize },
+    StartBlock { end_block_instr: usize },
+    EndBlock { start_block_instr: usize },
 }
 
 #[derive(Debug, PartialEq)]
@@ -43,6 +43,7 @@ pub enum BrainfuckError {
     DataPointerOverflow,
     DataOverflow,
     IoError,
+    InvalidInput,
 }
 
 impl BrainfuckError {
@@ -71,6 +72,10 @@ impl BrainfuckError {
             IoError => Error {
                 msg: String::from("Error while reading source file."),
                 exit_code: 6,
+            },
+            BrainfuckError::InvalidInput => Error {
+                msg: String::from("Invalid input."),
+                exit_code: 7,
             },
         }
     }

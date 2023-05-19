@@ -12,8 +12,11 @@
  *     GNU General Public License for more details.
  */
 
-use crate::brainfuck::BrainfuckError::{DataOverflow, DataPointerNegative, DataPointerOverflow};
+use crate::brainfuck::BrainfuckError::{
+    DataOverflow, DataPointerNegative, DataPointerOverflow, InvalidInput,
+};
 use crate::brainfuck::{BrainfuckError, Commands};
+use std::io;
 
 const DATA_SIZE: usize = 30000;
 
@@ -43,8 +46,8 @@ impl Machine {
                 Commands::DecData => self.dec_data(),
                 Commands::Output => self.output(),
                 Commands::Input => self.input(),
-                Commands::StartBlock { next_instr } => self.jmp_z(next_instr),
-                Commands::EndBlock { next_instr } => self.jmp_nz(next_instr),
+                Commands::StartBlock { end_block_instr } => self.jmp_z(end_block_instr),
+                Commands::EndBlock { start_block_instr } => self.jmp_nz(start_block_instr),
             };
 
             if last_command_result.is_err() {
@@ -98,7 +101,19 @@ impl Machine {
     }
 
     fn input(&mut self) -> Result<(), BrainfuckError> {
-        todo!()
+        let mut buffer = String::new();
+        let stdin = io::stdin();
+        match stdin.read_line(&mut buffer) {
+            Ok(_) => {}
+            Err(_) => return Err(InvalidInput),
+        }
+        match buffer.trim().parse::<i8>() {
+            Ok(number) => {
+                self.data[self.data_pointer] = number;
+                Ok(())
+            }
+            Err(_) => Err(InvalidInput),
+        }
     }
 
     fn jmp_z(&mut self, next_instr: usize) -> Result<(), BrainfuckError> {
