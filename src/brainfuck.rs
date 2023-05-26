@@ -93,7 +93,7 @@ pub(super) fn execute(file_name: String) -> Result<(), Error> {
     }
 }
 
-fn do_execute(commands: Vec<Commands>) -> Result<(), Error> {
+pub(super) fn do_execute(commands: Vec<Commands>) -> Result<(), Error> {
     match Machine::create(commands).execute() {
         Ok(_) => Ok(()),
         Err(bf_error) => Err(bf_error.to_error()),
