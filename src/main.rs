@@ -14,8 +14,7 @@
 
 use crate::interpreter::Error;
 use clap::{Parser, Subcommand};
-use Commands::Brainfuck;
-use crate::Commands::Ook;
+use Commands::{Brainfuck, Ook};
 
 mod brainfuck;
 mod interpreter;
