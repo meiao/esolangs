@@ -14,15 +14,17 @@
 
 use crate::interpreter::Error;
 use clap::{Parser, Subcommand};
-use Commands::Brainfuck;
+use Commands::{Brainfuck, Ook};
 
 mod brainfuck;
 mod interpreter;
+mod ook;
 
 fn main() {
     let args = Cli::parse();
     let result = match args.command {
         Brainfuck { source } => brainfuck::execute(source),
+        Ook { source } => ook::execute(source),
     };
     match result {
         Err(error) => {
@@ -49,5 +51,10 @@ struct Cli {
 #[derive(Debug, Subcommand)]
 enum Commands {
     #[command(arg_required_else_help = true)]
-    Brainfuck { source: String },
+    Brainfuck {
+        source: String,
+    },
+    Ook {
+        source: String,
+    },
 }
