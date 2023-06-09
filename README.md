@@ -16,3 +16,4 @@ esolangs <language> <source file>
 ## Supported languages
 
 - Brainfuck
+- Ook
