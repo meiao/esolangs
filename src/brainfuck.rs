@@ -25,10 +25,10 @@ use BrainfuckError::DataOverflow;
 
 #[derive(Debug, PartialEq)]
 pub enum Commands {
-    IncDataPointer,
-    DecDataPointer,
-    IncData,
-    DecData,
+    IncDataPointer(usize),
+    DecDataPointer(usize),
+    IncData(u8),
+    DecData(u8),
     Output,
     Input,
     StartBlock { end_block_instr: usize },

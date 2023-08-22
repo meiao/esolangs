@@ -22,10 +22,10 @@ pub(super) fn parse(source: String) -> Result<Vec<Commands>, BrainfuckError> {
     let mut col = 1;
     for char in source.chars() {
         match char {
-            '>' => commands.push(Commands::IncDataPointer),
-            '<' => commands.push(Commands::DecDataPointer),
-            '+' => commands.push(Commands::IncData),
-            '-' => commands.push(Commands::DecData),
+            '>' => commands.push(Commands::IncDataPointer(1)),
+            '<' => commands.push(Commands::DecDataPointer(1)),
+            '+' => commands.push(Commands::IncData(1)),
+            '-' => commands.push(Commands::DecData(1)),
             '.' => commands.push(Commands::Output),
             ',' => commands.push(Commands::Input),
             '[' => {
