@@ -48,6 +48,7 @@ impl Machine {
                 Commands::Input => self.input(),
                 Commands::StartBlock { end_block_instr } => self.jmp_z(end_block_instr),
                 Commands::EndBlock { start_block_instr } => self.jmp_nz(start_block_instr),
+                Commands::Noop => Ok(()),
             };
 
             if last_command_result.is_err() {

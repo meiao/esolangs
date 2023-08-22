@@ -33,6 +33,7 @@ pub enum Commands {
     Input,
     StartBlock { end_block_instr: usize },
     EndBlock { start_block_instr: usize },
+    Noop,
 }
 
 #[derive(Debug, PartialEq)]
