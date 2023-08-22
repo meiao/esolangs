@@ -21,12 +21,12 @@ use crate::brainfuck::Machine;
 #[test]
 fn simple_test() {
     let commands = vec![
-        IncData,
-        IncDataPointer,
-        DecData,
-        DecData,
-        DecDataPointer,
-        IncData,
+        IncData(1),
+        IncDataPointer(1),
+        DecData(1),
+        DecData(1),
+        DecDataPointer(1),
+        IncData(1),
     ];
     let mut machine = Machine::create(commands);
     let result = machine.execute();
@@ -38,15 +38,14 @@ fn simple_test() {
 #[test]
 fn block_test() {
     let commands = vec![
-        IncData,
-        IncData,
+        IncData(2),
         StartBlock { end_block_instr: 7 },
-        DecData,
-        IncDataPointer,
-        IncData,
-        DecDataPointer,
+        DecData(1),
+        IncDataPointer(1),
+        IncData(1),
+        DecDataPointer(1),
         EndBlock {
-            start_block_instr: 2,
+            start_block_instr: 1,
         },
     ];
     let mut machine = Machine::create(commands);
@@ -58,7 +57,7 @@ fn block_test() {
 
 #[test]
 fn data_pointer_negative() {
-    let commands = vec![DecDataPointer];
+    let commands = vec![DecDataPointer(1)];
     let result = Machine::create(commands).execute();
     assert_eq!(result, Err(DataPointerNegative))
 }
@@ -66,10 +65,10 @@ fn data_pointer_negative() {
 #[test]
 fn data_pointer_overflow() {
     let commands = vec![
-        IncData,
+        IncData(1),
         StartBlock { end_block_instr: 3 },
-        IncDataPointer,
-        IncData,
+        IncDataPointer(1),
+        IncData(1),
         EndBlock {
             start_block_instr: 1,
         },
@@ -81,9 +80,9 @@ fn data_pointer_overflow() {
 #[test]
 fn positive_data_overflow() {
     let commands = vec![
-        IncData,
+        IncData(1),
         StartBlock { end_block_instr: 3 },
-        IncData,
+        IncData(1),
         EndBlock {
             start_block_instr: 1,
         },
@@ -95,9 +94,9 @@ fn positive_data_overflow() {
 #[test]
 fn negative_data_overflow() {
     let commands = vec![
-        DecData,
+        DecData(1),
         StartBlock { end_block_instr: 3 },
-        DecData,
+        DecData(1),
         EndBlock {
             start_block_instr: 1,
         },

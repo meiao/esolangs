@@ -40,10 +40,10 @@ impl Machine {
     pub(crate) fn execute(&mut self) -> Result<(), BrainfuckError> {
         while (self.instr_pointer) < self.commands.len() {
             let last_command_result = match self.commands[self.instr_pointer] {
-                Commands::IncDataPointer => self.inc_data_pointer(),
-                Commands::DecDataPointer => self.dec_data_pointer(),
-                Commands::IncData => self.inc_data(),
-                Commands::DecData => self.dec_data(),
+                Commands::IncDataPointer(by) => self.inc_data_pointer(by),
+                Commands::DecDataPointer(by) => self.dec_data_pointer(by),
+                Commands::IncData(by) => self.inc_data(by),
+                Commands::DecData(by) => self.dec_data(by),
                 Commands::Output => self.output(),
                 Commands::Input => self.input(),
                 Commands::StartBlock { end_block_instr } => self.jmp_z(end_block_instr),
@@ -59,24 +59,24 @@ impl Machine {
         return Ok(());
     }
 
-    fn inc_data_pointer(&mut self) -> Result<(), BrainfuckError> {
-        self.data_pointer += 1;
-        if self.data_pointer == DATA_SIZE {
+    fn inc_data_pointer(&mut self, by :usize) -> Result<(), BrainfuckError> {
+        self.data_pointer += by;
+        if self.data_pointer >= DATA_SIZE {
             return Err(DataPointerOverflow);
         }
         return Ok(());
     }
 
-    fn dec_data_pointer(&mut self) -> Result<(), BrainfuckError> {
-        if self.data_pointer == 0 {
+    fn dec_data_pointer(&mut self, by :usize) -> Result<(), BrainfuckError> {
+        if self.data_pointer < by {
             return Err(DataPointerNegative);
         }
-        self.data_pointer -= 1;
+        self.data_pointer -= by;
         return Ok(());
     }
 
-    fn inc_data(&mut self) -> Result<(), BrainfuckError> {
-        match self.data[self.data_pointer].checked_add(1) {
+    fn inc_data(&mut self, by :u8) -> Result<(), BrainfuckError> {
+        match self.data[self.data_pointer].checked_add(by as i8) {
             None => Err(DataOverflow),
             Some(value) => {
                 self.data[self.data_pointer] = value;
@@ -85,8 +85,8 @@ impl Machine {
         }
     }
 
-    fn dec_data(&mut self) -> Result<(), BrainfuckError> {
-        match self.data[self.data_pointer].checked_sub(1) {
+    fn dec_data(&mut self, by :u8) -> Result<(), BrainfuckError> {
+        match self.data[self.data_pointer].checked_sub(by as i8) {
             None => Err(DataOverflow),
             Some(value) => {
                 self.data[self.data_pointer] = value;

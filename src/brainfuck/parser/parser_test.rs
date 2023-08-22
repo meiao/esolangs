@@ -25,13 +25,13 @@ fn parse_test() {
     let byte_code = parse(String::from("++[->+<]")).unwrap();
     assert_eq!(8, byte_code.len());
     let expected = vec![
-        IncData,
-        IncData,
+        IncData(1),
+        IncData(1),
         StartBlock { end_block_instr: 7 },
-        DecData,
-        IncDataPointer,
-        IncData,
-        DecDataPointer,
+        DecData(1),
+        IncDataPointer(1),
+        IncData(1),
+        DecDataPointer(1),
         EndBlock {
             start_block_instr: 2,
         },
